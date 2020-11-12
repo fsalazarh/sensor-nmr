@@ -1,0 +1,34 @@
+#! /bin/sh
+# /etc/init.d/noise
+
+### BEGIN INIT INFO
+# Provides:          noise
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start noise at boot time
+# Description:       Start all screen services for noise at boot time, each will contain a service
+### END INIT INFO
+
+# If you want a command to always run, put it here
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+  start)
+    echo "STARTING NOISE SCREEN SERVICES"
+    # start services
+    su pi -c '. /home/pi/sinestesia/noise/scripts/start_screen.sh'
+    ;;
+  stop)
+    echo "STOPPING SMARTCITIZEN SERVICES"
+    # kill application you want to stop
+    su pi -c '. /home/pi/sinestesia/noise/scripts/stop_screen.sh'
+    ;;
+  *)
+    echo "Usage: /etc/init.d/noise {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0

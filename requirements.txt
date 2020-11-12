@@ -1,0 +1,7 @@
+# List of packages used in this project
+--index-url https://pypi.python.org/simple/
+
+requests==2.18.1
+sqlalchemy==1.1.10
+sqlalchemy_mixins==0.2.2
+PyAudio
