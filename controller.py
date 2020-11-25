@@ -7,7 +7,7 @@ from connection.audio_retriever import AudioRetriever
 from connection.data_processor import DataProcessor
 from connection.light_manager import LightManager
 from databases.database import Database
-from synchronization.synchronizers import DriveSynchronizer
+from synchronization.synchronizers import DriveSynchronizer, BigQuerySynchronizer
 
 from thread_manager import ThreadManager
 from utils.singleton import SingletonMixin
@@ -35,7 +35,8 @@ class MenuMessages(SingletonMixin):
         print('2. Data processor')
         print('3. Light manager')
         print('4. Drive synchronization')
-        print('5. Back to previous menu')
+        print('5. BigQuery synchronization')
+        print('6. Back to previous menu')
 
     def print_stop_service_menu(self):
         """Prints the start services menu"""
@@ -44,7 +45,8 @@ class MenuMessages(SingletonMixin):
         print('2. Data processor')
         print('3. Light manager')
         print('4. Drive synchronization')
-        print('5. Back to previous menu')
+        print('5. BigQuery synchronization')
+        print('6. Back to previous menu')
 
     def print_raspberry_configuration_menu(self):
         """Prints the raspberry configuration menu"""
@@ -61,11 +63,13 @@ class ServiceManager():
         self.light_manager = LightManager()
         # define the base status of the services
         self.drive_synchronizer = DriveSynchronizer()
+        self.big_query_synchronizer = BigQuerySynchronizer()
         self.services_running = {
             'AudioRetriever': False,
             'DataProcessor': False,
             'LightManager': False,
-            'DriveSynchronizer': False
+            'DriveSynchronizer': False,
+            'BigQuerySynchronizer': False,
         }
 
         # start services
@@ -73,6 +77,7 @@ class ServiceManager():
         self.start_data_processor()
         self.start_light_manager()
         self.start_drive_synchronizer()
+        self.start_big_query_synchronizer()
 
     def parse_integer(self, value):
         """Parses entered input to a valid integer"""
@@ -101,6 +106,8 @@ class ServiceManager():
             self.start_light_manager()
         if service_name == 'DriveSynchronizer':
             self.start_drive_synchronizer()
+        if service.name == 'BigQuerySynchronizer':
+            self.start_big_query_synchronizer()
 
     def start_audio_retriever(self, show_message=True):
         """Starts the audio retrieving service"""
@@ -146,6 +153,15 @@ class ServiceManager():
         thread_manager.start_thread('DriveSynchronizer')
         print('\nStarted service drive synchronization successfully\n')
         self.services_running['DriveSynchronizer'] = True
+    
+    def start_big_query_synchronizer(self, show_message=True):
+        thread_manager = ThreadManager.instance()
+        thread_manager.add_thread('BigQuerySynchronizer',
+                                  self.big_query_synchronizer.synchronize,
+                                  sleep_time=300)
+        thread_manager.start_thread('BigQuerySynchronizer')
+        print('\nStarted service big query synchronization successfully\n')
+        self.services_running['BigQuerySynchronizer'] = True
 
     def stop_service(self, service_name):
         """Stops a service on the thread manager"""
@@ -192,6 +208,9 @@ class ServiceManager():
                     if key == 'DriveSynchronizer':
                         self.start_drive_synchronizer(show_message=False)
                         logging.info('Restarting automatically service drive synchronizer')
+                    if key == 'BigQuerySynchronizer':
+                       self.start_big_query_synchronizer(show_message=False)
+                       logging.info('Restarting automatically service big query synchronizer')
         except Exception as error:
             logging.info('Tried to restart a service but a fatal error ocurred ' + str(error))
 
@@ -285,6 +304,9 @@ class Controller():
                 self.service_manager.start_service('DriveSynchronizer')
                 logging.info('Requested to start drive synchronizer service')
             elif option == 5:
+                self.service_manager.start_service('BigQuerySynchronizer')
+                logging.info('Requested to start big query synchronizer service')
+            elif option == 6:
                 looping = False
             else:
                 print('Option not found')
@@ -308,6 +330,9 @@ class Controller():
                 self.service_manager.stop_service('DriveSynchronizer')
                 logging.info('Requested to stop drive synchronizer service')
             elif option == 5:
+                self.service_manager.stop_service('BigQuerySynchronizer')
+                logging.info('Requested to stop big query synchronizer service')
+            elif option == 6:
                 looping = False
             else:
                 print('Option not found')

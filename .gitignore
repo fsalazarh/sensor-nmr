@@ -1,0 +1,4 @@
+nmr-sensor/
+__pycache__/
+*.pyc
+.vscode/*

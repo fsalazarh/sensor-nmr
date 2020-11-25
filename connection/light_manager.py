@@ -20,7 +20,7 @@ class LightManager:
     def __init__(self, test_mode=False):
         self.test_mode = test_mode
         self.begin_hour = time(7,30)
-        self.end_hour = time(16,0)
+        self.end_hour = time(22,0)
         self.led_status = ""
         gpio.setmode(gpio.BOARD)
         gpio.setup(11, gpio.OUT) # B

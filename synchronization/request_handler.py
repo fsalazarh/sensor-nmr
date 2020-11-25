@@ -131,3 +131,37 @@ class RequestHandler():
                 noises[noise_row].save()
             self.sheet.update_cells(cell_list)
             self.row += noises_rows
+
+    def post_peak_big_query(self):
+        logging.info('Posting noise data to BigQuery')
+        time = datetime.utcnow()
+        Noise.destroy_synchronized()
+        noises_base = Noise.find_unsynchronized()
+        noises = noises_base.all()
+        noises_rows = len(noises)
+        logging.info('Noises posted: '+str(noises_rows))
+        if len(noises) == 0:
+            return
+
+        for noise_row in range(noises_rows):
+            payload = {
+                 'hw_id': 'Sensor test',
+                 'registered_at': noises[noise_row].registered_at.strftime('%Y-%m-%d %H:%M:%S'),
+                 'synchronized_at': time.strftime('%Y-%m-%d %H:%M:%S'),
+                 'peak_value': noises[noise_row].peak,
+                 'percent_1': noises[noise_row].var1,
+                 'percent_5': noises[noise_row].var5,
+                 'percent_10': noises[noise_row].var10,
+                 'avg': noises[noise_row].avg,
+            }
+
+            try:
+                request = requests.post('http://apiecological.com/api/v1/docs', data=payload, timeout=5)
+                noises[noise_row].synchronized_at = time
+                noises[noise_row].save()
+
+            except (requests.ConnectionError) as e:
+                print('No internet connection.')
+
+            
+        

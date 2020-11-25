@@ -77,7 +77,7 @@ class AudioRetriever:
         self.filtered_recording = filtfilt(self.b, self.a, self.decoded_recording)
         peak = Peak(
             registered_at=datetime.utcnow(),
-            peak_value=self.noise_peak(self.filtered_recording)
+            peak_value=self.noise_peak(self.filtered_recording)+105
         )
         peak.save()
 

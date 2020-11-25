@@ -20,3 +20,8 @@ class DriveSynchronizer(BaseSynchronizer):
     def synchronize(self):
         """Check for unsynchronized peak values on the database an gives them to Google Drive"""
         self.request_handler.post_peak()
+
+
+class BigQuerySynchronizer(BaseSynchronizer):
+    def synchronize(self):
+        self.request_handler.post_peak_big_query()
