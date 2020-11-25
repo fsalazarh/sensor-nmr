@@ -156,12 +156,12 @@ class RequestHandler():
             }
 
             try:
-                request = requests.post('http://apiecological.com/api/v1/docs', data=payload, timeout=5)
+                request = requests.post('http://apiecological.com/api/v1/sensor_noise', data=payload, timeout=5)
                 noises[noise_row].synchronized_at = time
                 noises[noise_row].save()
 
-            except (requests.ConnectionError) as e:
-                print('No internet connection.')
+            except requests.ConnectionError as e:
+                print('No internet connection')
 
             
         
